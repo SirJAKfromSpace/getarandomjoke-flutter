@@ -1,16 +1,8 @@
-# hello_flutting
+# Get A Random Joke - Flutter
 
-A new Flutter project.
+A simple flutter app that uses the rest api from 15Dkatz's official random joke endpoints to get jokes.
 
-## Getting Started
+## Installing
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Here is an apk file that you can install on your android device linked below:
+https://1drv.ms/u/s!AuoY2JUeuNGgnkacPZd19X0wqd3I?e=4zHKDv

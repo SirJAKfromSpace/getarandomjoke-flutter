@@ -8,6 +8,8 @@ import 'package:english_words/english_words.dart';
 import 'package:http/http.dart' as http;
 import 'package:faker/faker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(MyApp());
@@ -118,6 +120,46 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              showAboutDialog(
+                context: context,
+                applicationVersion: '1.2 i guess?',
+                children: [
+                  Text(
+                      'Made by Jawad Aziz Khan\nUsing 15Dkatz\'s Joke API\nCheck out my other work below!\n'),
+                  Linkify(
+                      onOpen: (link) async {
+                        if (await canLaunch(link.url)) {
+                          await launch(link.url);
+                        } else {
+                          throw 'Could not launch $link';
+                        }
+                      },
+                      text: "https://bit.ly/jakfromspace"),
+                  Linkify(
+                      onOpen: (link) async {
+                        if (await canLaunch(link.url)) {
+                          await launch(link.url);
+                        } else {
+                          throw 'Could not launch $link';
+                        }
+                      },
+                      text: "https://bit.ly/jak-github"),
+                  // Link(
+                  //     child: Text('jakfromspace.com'),
+                  //     url: 'https://bit.ly/jakfromspace'),
+                  // Link(
+                  //     child: Text('github.com/sirjakfromspace'),
+                  //     url:
+                  //         'https://github.com/SirJAKfromSpace?tab=repositories'),
+                ],
+              );
+            },
+          )
+        ],
       ),
       body: Center(
         child: Padding(

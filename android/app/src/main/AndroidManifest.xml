@@ -5,7 +5,7 @@
     
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="GetARandJoke"
+        android:label="GetaJoke"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"

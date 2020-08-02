@@ -1,10 +1,13 @@
 import 'dart:convert';
+// import 'dart:io';
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:random_color/random_color.dart';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:http/http.dart' as http;
 import 'package:faker/faker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,16 +18,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Jokes and Ninjas',
-      home: MyHomePage(title: 'Random Jokes and Names'),
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-    );
+        title: 'Jokes and Ninjas',
+        home: MyHomePage(title: 'Get Random Jokes'),
+        theme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            scaffoldBackgroundColor: Colors.black87));
   }
 }
 
+// RANDOM JOKE
 Future<RandomJoke> fetchRandomJoke() async {
   final response =
       await http.get('https://official-joke-api.appspot.com/random_joke');
@@ -39,9 +42,7 @@ class RandomJoke {
   final String type;
   final String jokeSetup;
   final String jokePunchline;
-
   RandomJoke({this.id, this.type, this.jokeSetup, this.jokePunchline});
-
   factory RandomJoke.fromJson(Map<String, dynamic> json) {
     return RandomJoke(
         id: json['id'],
@@ -50,6 +51,27 @@ class RandomJoke {
         jokePunchline: json['punchline']);
   }
 }
+
+// DAD JOKE
+// Future<DadJoke> fetchDadJoke() async {
+//   final response = await http.get('https://icanhazdadjoke.com/',
+//       headers: {HttpHeaders.acceptHeader: "application/json"});
+//   if (response.statusCode == 200) {
+//     return DadJoke.fromJson(json.decode(response.body));
+//   } else
+//     throw Exception('Failed to get Joke');
+// }
+
+// class DadJoke {
+//   final String id;
+//   final String joke;
+//   DadJoke({this.id, this.joke});
+//   factory DadJoke.fromJson(Map<String, dynamic> json) {
+//     return DadJoke(id: json['id'], joke: json['joke']);
+//   }
+// }
+
+///////// HomePage ///////////////
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -65,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<RandomJoke> futureJoke;
   final RandomColor colorGenerator = RandomColor();
   final japsuffix = ['san', 'sama', 'kun', 'chan'];
+  String copytext = '';
 
   @override
   void initState() {
@@ -77,6 +100,17 @@ class _MyHomePageState extends State<MyHomePage> {
       _wordPair = WordPair.random().asPascalCase;
       futureJoke = fetchRandomJoke();
     });
+  }
+
+  void copyJoketoClip() {
+    Clipboard.setData(ClipboardData(text: copytext));
+    Fluttertoast.showToast(
+        msg: "Copied",
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black87,
+        fontSize: 16.0);
   }
 
   @override
@@ -109,41 +143,27 @@ class _MyHomePageState extends State<MyHomePage> {
                 future: futureJoke,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
-                      snapshot.connectionState == ConnectionState.done)
-                    return Stack(
-                      children: <Widget>[
-                        // Stroked text as border.
-                        Text(
-                          snapshot.data.jokeSetup +
-                              '\n\n' +
-                              snapshot.data.jokePunchline,
-                          style: TextStyle(
-                            fontSize: 35,
-                            foreground: Paint()
-                              ..style = PaintingStyle.stroke
-                              ..strokeWidth = 1
-                              ..color = Colors.black,
-                          ),
-                        ),
-                        // Solid text as fill.
-                        Text(
-                          snapshot.data.jokeSetup +
-                              '\n\n' +
-                              snapshot.data.jokePunchline,
-                          style: TextStyle(
-                            fontSize: 35,
-                            color: colorGenerator.randomColor(),
-                          ),
-                        ),
-                      ],
+                      snapshot.connectionState == ConnectionState.done) {
+                    copytext = snapshot.data.jokeSetup +
+                        '\n\n' +
+                        snapshot.data.jokePunchline;
+                    return Text(
+                      copytext,
+                      style: TextStyle(
+                        fontSize: 35,
+                        color: colorGenerator.randomColor(
+                            colorBrightness: ColorBrightness.veryLight),
+                      ),
                     );
-                  else if (snapshot.hasError) return Text("${snapshot.error}");
+                  } else if (snapshot.hasError)
+                    return Text("${snapshot.error}");
                   return LinearProgressIndicator();
                 },
               ),
-              SizedBox(height: 64),
+              SizedBox(height: 48),
               Text(
                 '\nYour secret Ninja codename is...\n',
+                style: TextStyle(color: Colors.grey),
               ),
               Text(
                 '$_wordPair-' + japsuffix[Random().nextInt(4)],
@@ -152,16 +172,29 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.blueAccent,
                     fontSize: 20),
               ),
-              SizedBox(height: 96)
+              SizedBox(height: 96),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _getNewWordPair,
-        tooltip: 'Get a new Ninja name',
-        child: Icon(Icons.fiber_new),
-      ),
+      floatingActionButton: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Row(
+            textDirection: TextDirection.rtl,
+            children: <Widget>[
+              FloatingActionButton(
+                onPressed: _getNewWordPair,
+                tooltip: 'Get a new Random Joke',
+                child: Icon(Icons.fiber_new),
+              ),
+              SizedBox(width: 16),
+              FloatingActionButton(
+                onPressed: copyJoketoClip,
+                tooltip: 'Copy Joke to Clipboard',
+                child: Icon(Icons.content_copy),
+              ),
+            ],
+          )),
     );
   }
 }
